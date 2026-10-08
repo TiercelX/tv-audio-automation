@@ -47,7 +47,7 @@ tvctl --sa9023-volume-auto on
 
 ## macOS / Hackintosh
 
-The `macos/` scripts control the macOS output volume only when **Sound BlasterX G1** is the default output device. The schedule maps TV levels 0–80 to G1 levels 5–100. It includes the morning increases, daytime checkpoints, and a one-minute descending ramp from 21:30 to 22:00. macOS may round volume to nearby hardware steps; readback allows a two-point difference.
+The `macos/` scripts control the macOS output volume only when **Sound BlasterX G1** is the default output device. The schedule maps TV levels 0–80 to G1 levels 7–100 using `7 + round(TV volume * 93 / 80)`. It includes the morning increases, daytime checkpoints, and a one-minute descending ramp from 21:30 to 22:00. Manual G1 volume accepts 7–100. macOS may round volume to nearby hardware steps; readback allows a two-point difference.
 
 ### Install
 

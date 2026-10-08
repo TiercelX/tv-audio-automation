@@ -39,8 +39,8 @@ def automation_state():
     return f"loaded=disabled state={'disabled' if is_disabled else 'not-loaded'}"
 
 def set_volume(value):
-    if not value.isdigit() or not 5 <= int(value) <= 100:
-        raise ValueError("volume must be an integer from 5 to 100")
+    if not value.isdigit() or not 7 <= int(value) <= 100:
+        raise ValueError("volume must be an integer from 7 to 100")
     target = int(value)
     if not g1_is_default():
         raise RuntimeError("Sound BlasterX G1 is not the default output device")

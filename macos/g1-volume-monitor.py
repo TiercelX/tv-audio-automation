@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Daily G1 schedule, mapping TV volume 0-80 to G1 volume 5-100."""
+"""Daily G1 schedule, mapping TV volume 0-80 to G1 volume 7-100."""
 from datetime import datetime, timedelta
 import os
 import subprocess
@@ -56,7 +56,7 @@ def set_volume(target):
     return observed
 
 def mapped(tv):
-    return 5 + int(tv * 95 / 80 + 0.5)
+    return 7 + int(tv * 93 / 80 + 0.5)
 
 def apply_event(label, tv):
     target = mapped(tv)
