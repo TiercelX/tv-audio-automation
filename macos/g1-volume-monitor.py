@@ -55,11 +55,15 @@ def set_volume(target):
         raise RuntimeError(f"G1 readback={observed} target={target}")
     return observed
 
-def mapped(tv):
+def mapped(tv, evening=False):
+    if evening:
+        if tv >= 50:
+            return 50 + int((tv - 50) * 50 / 30 + 0.5)
+        return 7 + int(tv * 43 / 50 + 0.5)
     return 7 + int(tv * 93 / 80 + 0.5)
 
-def apply_event(label, tv):
-    target = mapped(tv)
+def apply_event(label, tv, evening=False):
+    target = mapped(tv, evening)
     log(f"event={label} tv_target={tv} g1_target={target}")
     for attempt in range(1, 4):
         try:
@@ -94,15 +98,15 @@ def run_day():
     timed = [(event_time(now, clock), clock, tv) for clock, tv in daily_events()]
     passed = [(when, clock, tv) for when, clock, tv in timed if when <= now]
     if passed:
-        _, _, tv = passed[-1]
-        apply_event("startup-catch-up", tv)
+        _, clock, tv = passed[-1]
+        apply_event("startup-catch-up", tv, clock >= "19:01")
     for when, clock, tv in timed:
         if when <= now:
             continue
         delay = (when - datetime.now().astimezone()).total_seconds()
         if delay > 0:
             time.sleep(delay)
-        apply_event(clock, tv)
+        apply_event(clock, tv, clock >= "19:01")
     tomorrow = datetime.combine(day + timedelta(days=1), datetime.min.time()).astimezone()
     wake = tomorrow.replace(hour=5, minute=49)
     time.sleep(max(1, (wake - datetime.now().astimezone()).total_seconds()))
