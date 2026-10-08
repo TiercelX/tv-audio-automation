@@ -1,0 +1,11 @@
+[Unit]
+Description=Resident SA9023 SPDIF volume schedule
+After=graphical-session.target pipewire.service
+
+[Service]
+Type=simple
+ExecStart=%h/.local/lib/tv-audio-automation/ubuntu/monitor-sa9023-volume-resident.sh
+Restart=no
+
+[Install]
+WantedBy=default.target

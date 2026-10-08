@@ -1,0 +1,11 @@
+[Unit]
+Description=Resident TV volume DDC correction supervisor
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/lib/tv-audio-automation/ubuntu/monitor-volume-resident.sh
+Restart=no
+
+[Install]
+WantedBy=default.target

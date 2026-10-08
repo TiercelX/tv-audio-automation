@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""CLI for the Tahoe Sound BlasterX G1 output and its volume automation."""
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+LABEL = "com.example.tv-g1-volume-monitor"
+BASE = Path(__file__).resolve().parent
+PLIST = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
+DOMAIN = f"gui/{os.getuid()}"
+
+def run(args, *, check=True, capture=False):
+    return subprocess.run(args, check=check, text=True, capture_output=capture)
+
+def g1_is_default():
+    result = run(["/usr/sbin/system_profiler", "SPAudioDataType", "-detailLevel", "mini"], capture=True).stdout
+    lines = result.splitlines()
+    for index, line in enumerate(lines):
+        if line.strip() == "Sound BlasterX G1:":
+            if any("Default Output Device: Yes" in following for following in lines[index + 1:index + 8]):
+                return True
+    return False
+
+def read_volume():
+    output = run(["/usr/bin/osascript", "-e", "output volume of (get volume settings)"], capture=True).stdout.strip()
+    if not output.isdigit() or not 0 <= int(output) <= 100:
+        raise RuntimeError(f"invalid volume readback: {output}")
+    return int(output)
+
+def automation_state():
+    job = run(["/bin/launchctl", "print", f"{DOMAIN}/{LABEL}"], check=False, capture=True)
+    disabled = run(["/bin/launchctl", "print-disabled", DOMAIN], check=False, capture=True)
+    is_disabled = bool(re.search(rf'"{re.escape(LABEL)}"\s*=>\s*true', disabled.stdout))
+    if job.returncode == 0:
+        match = re.search(r"\bstate = (\w+)", job.stdout)
+        return f"loaded=enabled state={match.group(1) if match else 'loaded'}"
+    return f"loaded=disabled state={'disabled' if is_disabled else 'not-loaded'}"
+
+def set_volume(value):
+    if not value.isdigit() or not 5 <= int(value) <= 100:
+        raise ValueError("volume must be an integer from 5 to 100")
+    target = int(value)
+    if not g1_is_default():
+        raise RuntimeError("Sound BlasterX G1 is not the default output device")
+    run(["/usr/bin/osascript", "-e", f"set volume output volume {target}"])
+    observed = read_volume()
+    if abs(observed - target) > 2:
+        raise RuntimeError(f"G1 readback={observed} target={target}")
+    print(f"G1 output volume={observed}/100 target={target} verified")
+
+def set_automation(state):
+    if state == "off":
+        run(["/bin/launchctl", "disable", f"{DOMAIN}/{LABEL}"])
+        run(["/bin/launchctl", "bootout", DOMAIN, str(PLIST)], check=False)
+    else:
+        run(["/bin/launchctl", "enable", f"{DOMAIN}/{LABEL}"])
+        job = run(["/bin/launchctl", "print", f"{DOMAIN}/{LABEL}"], check=False, capture=True)
+        if job.returncode != 0:
+            run(["/bin/launchctl", "bootstrap", DOMAIN, str(PLIST)])
+        run(["/bin/launchctl", "kickstart", "-k", f"{DOMAIN}/{LABEL}"])
+    print(f"G1 volume automation: {automation_state()}")
+
+def usage():
+    print("Usage: g1ctl status | volume VALUE | auto on|off | log [LINES]")
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        usage()
+        return 0 if argv else 2
+    command = argv[0]
+    if command in ("status", "--status") and len(argv) == 1:
+        print(f"G1 output volume={read_volume()}/100 default_output={'yes' if g1_is_default() else 'no'}")
+        print(f"G1 volume automation: {automation_state()}")
+    elif command in ("volume", "--volume", "set") and len(argv) == 2:
+        set_volume(argv[1])
+    elif command in ("auto", "--auto", "--volume-auto") and len(argv) == 2 and argv[1] in ("on", "off"):
+        set_automation(argv[1])
+    elif command in ("log", "--log") and len(argv) in (1, 2):
+        lines = argv[1] if len(argv) == 2 else "20"
+        if not lines.isdigit() or not 1 <= int(lines) <= 500:
+            raise ValueError("log line count must be from 1 to 500")
+        path = Path.home() / ".local/state/g1-volume-control/monitor.log"
+        if not path.exists():
+            print("No G1 volume log yet")
+        else:
+            run(["/usr/bin/tail", "-n", lines, str(path)])
+    else:
+        usage()
+        return 2
+    return 0
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main(sys.argv[1:]))
+    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as error:
+        print(f"g1ctl: {error}", file=sys.stderr)
+        sys.exit(1)

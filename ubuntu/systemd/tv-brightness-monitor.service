@@ -1,0 +1,11 @@
+[Unit]
+Description=Resident TV brightness DDC schedule supervisor
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/lib/tv-audio-automation/ubuntu/monitor-brightness-resident.sh
+Restart=no
+
+[Install]
+WantedBy=default.target

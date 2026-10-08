@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_PATH="$(readlink -f -- "$0")"
+BASE_DIR="$(cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd)"
+BRIGHTNESS="$BASE_DIR/ddc-brightness-control.sh"
+VOLUME="$BASE_DIR/ddc-volume-control.sh"
+SA9023_VOLUME="$BASE_DIR/sa9023-volume-control.sh"
+
+usage() {
+    cat <<'EOF'
+Usage:
+  tvctl status
+  tvctl --brightness VALUE
+  tvctl --volume VALUE
+  tvctl --sa9023-volume VALUE
+  tvctl --brightness-auto on|off
+  tvctl --volume-auto on|off
+  tvctl --sa9023-volume-auto on|off
+  tvctl --status
+  tvctl brightness VALUE
+tvctl volume VALUE
+
+VALUE is an absolute level from 0 to 100. Set commands apply immediately
+and verify the value by reading it back from the TV.
+Volume values are absolute levels. TV volume accepts 0-100; SA9023 SPDIF
+volume accepts 0-100 and is read back after setting.
+Automation switches control the TV brightness, TV volume, and SA9023 SPDIF
+volume services independently.
+EOF
+}
+
+set_automation() {
+    local which="$1" state="$2" unit
+    case "$which" in
+        brightness) unit=tv-brightness-monitor.service ;;
+        volume) unit=tv-volume-monitor.service ;;
+        sa9023-volume) unit=sa9023-volume-monitor.service ;;
+        *) echo "tvctl: unknown automation: $which" >&2; exit 2 ;;
+    esac
+    case "$state" in
+        on) systemctl --user enable --now "$unit" ;;
+        off) systemctl --user disable --now "$unit" ;;
+        *) echo "tvctl: state must be on or off" >&2; usage >&2; exit 2 ;;
+    esac
+}
+
+automation_status() {
+    local which unit enabled active
+    for which in brightness volume sa9023-volume; do
+        if [[ "$which" == brightness ]]; then unit=tv-brightness-monitor.service
+        elif [[ "$which" == volume ]]; then unit=tv-volume-monitor.service
+        else unit=sa9023-volume-monitor.service
+        fi
+        enabled="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
+        active="$(systemctl --user is-active "$unit" 2>/dev/null || true)"
+        printf '%s automation: enabled=%s active=%s\n' "$which" "${enabled:-unknown}" "${active:-unknown}"
+    done
+}
+
+[[ $# -gt 0 ]] || { usage; exit 2; }
+
+case "$1" in
+    status|--status)
+        [[ $# -eq 1 ]] || { usage >&2; exit 2; }
+        "$BRIGHTNESS" status
+        "$VOLUME" status
+        "$SA9023_VOLUME" status
+        automation_status
+        ;;
+    --brightness-auto)
+        [[ $# -eq 2 ]] || { usage >&2; exit 2; }
+        set_automation brightness "$2"
+        ;;
+    --volume-auto)
+        [[ $# -eq 2 ]] || { usage >&2; exit 2; }
+        set_automation volume "$2"
+        ;;
+    --sa9023-volume-auto)
+        [[ $# -eq 2 ]] || { usage >&2; exit 2; }
+        set_automation sa9023-volume "$2"
+        ;;
+    --brightness|brightness)
+        [[ $# -eq 2 ]] || { usage >&2; exit 2; }
+        exec "$BRIGHTNESS" --apply correct "$2"
+        ;;
+    --volume|volume)
+        [[ $# -eq 2 ]] || { usage >&2; exit 2; }
+        exec "$VOLUME" --apply correct "$2"
+        ;;
+    --sa9023-volume|sa9023-volume)
+        [[ $# -eq 2 ]] || { usage >&2; exit 2; }
+        exec "$SA9023_VOLUME" set "$2"
+        ;;
+    -h|--help|help)
+        [[ $# -eq 1 ]] || { usage >&2; exit 2; }
+        usage
+        ;;
+    *) usage >&2; exit 2 ;;
+esac
