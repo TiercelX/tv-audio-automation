@@ -16,23 +16,33 @@ The current SA9023 schedule maps TV volume 1–80 linearly to SA9023 30–100:
 30 + round((TV volume - 1) * 70 / 79)
 ```
 
-It follows the daily TV volume checkpoints, including the 05:50–07:00 morning rise in five-point steps. The SA9023 sink is resolved by its PipeWire node name and USB product ID, not a transient sink number. The Philips EDID pattern is configured in `ddc-volume-control.sh` and `ddc-brightness-control.sh`; edit it for a different display.
+It follows the daily TV volume checkpoints, including the 05:50–07:00 morning rise in five-point steps. The SA9023 sink is resolved by its PipeWire node name and USB product ID, not a transient sink number. The target display is bound by EDID manufacturer, product code, and serial number. Same-identity links are allowed: enabled connectors are preferred and unreadable paths fall back to another matching link. Only one path is used for each operation. A different serial number is excluded even when the model name matches. Missing or unreadable identities are retried without permanently stopping the schedule.
 
 ### Install
 
-Requirements: Bash, `ddcutil`, `wpctl`/PipeWire, and a user session with systemd.
+Requirements: Bash, Python 3, `ddcutil`, `wpctl`/PipeWire, and a user session with systemd.
 
 Copy the project into the path used by the unit files, then install and start the services:
 
 ```bash
 mkdir -p "$HOME/.local/lib"
 cp -R . "$HOME/.local/lib/tv-audio-automation"
+# Inspect ddcutil detect --terse and replace the example connector below.
+python3 "$HOME/.local/lib/tv-audio-automation/ubuntu/ddc-discover-tv.py" --bind card1-DP-1
 mkdir -p "$HOME/.config/systemd/user"
 cp ubuntu/systemd/*.service "$HOME/.config/systemd/user/"
 systemctl --user daemon-reload
 systemctl --user enable --now tv-volume-monitor.service tv-brightness-monitor.service sa9023-volume-monitor.service
 mkdir -p "$HOME/.local/bin"
 ln -sf "$HOME/.local/lib/tv-audio-automation/ubuntu/tvctl" "$HOME/.local/bin/tvctl"
+```
+
+Binding writes `tv-edid-target.json` beside the installed helper. Keep this machine-specific file private; it is ignored by Git. Rebind when replacing the target TV. The example JSON uses an invalid serial placeholder deliberately; it cannot select a real display. Only EDID identity fields are compared, so input-specific timing or extension data can differ. Devices with missing, inconsistent, or cloned serial numbers cannot be reliably distinguished by this mechanism.
+
+Tests (no hardware writes):
+
+```bash
+python3 -m unittest discover -s ubuntu -p 'test_ddc_discovery.py'
 ```
 
 Examples:

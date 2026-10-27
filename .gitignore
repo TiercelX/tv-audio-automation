@@ -5,3 +5,8 @@ fault
 __pycache__/
 .pytest_cache/
 .venv/
+
+# Machine-specific display identity and local backups
+ubuntu/tv-edid-target.json
+backups/
+*.bak

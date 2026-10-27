@@ -4,7 +4,7 @@ set -euo pipefail
 # Absolute-value DDC correction for the TV volume.
 # Dry-run is the default. Add --apply to write.
 
-MODEL_PATTERN='PHL:PHL 436M6VBP:'
+BASE_DIR="$(dirname -- "$(readlink -f -- "$0")")"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/ddc-volume-control"
 LOG_FILE="$STATE_DIR/events.log"
 LOCK_FILE="$STATE_DIR/lock"
@@ -21,7 +21,7 @@ Commands:
   correct TARGET  Set the TV directly to TARGET (0..100) if different.
   guard-low       0 -> 1, 1..5 -> no-op, above 5 -> 5.
 
-The TV is rediscovered on every invocation by EDID/model, so the I2C bus
+The TV is rediscovered by its configured EDID manufacturer/product/serial; the I2C bus
 number may change after a display-link re-enumeration.
 EOF
 }
@@ -36,16 +36,10 @@ exec 9>"$LOCK_FILE"
 flock -n 9 || die "another DDC operation is already running"
 
 discover_bus() {
-    local output buses
-    output="$(ddcutil detect --terse 2>/dev/null)" || unavailable "DDC detection failed (TV may be asleep or powered off)"
-    buses="$(awk -v pattern="$MODEL_PATTERN" '
-        /I2C bus:/ { bus=$3; sub("/dev/i2c-", "", bus) }
-        index($0, pattern) { print bus }
-    ' <<<"$output")"
-    [[ -n "$buses" ]] || unavailable "target TV not detected (TV may be asleep or powered off)"
-    [[ "$(wc -l <<<"$buses" | tr -d ' ')" == 1 ]] || die "multiple matching TVs detected"
-    [[ "$buses" =~ ^[0-9]+$ ]] || die "invalid detected bus: $buses"
-    printf '%s\n' "$buses"
+    local bus
+    bus="$(python3 "$BASE_DIR/ddc-discover-tv.py" --vcp 62)" || unavailable "TV control channel temporarily unavailable"
+    [[ "$bus" =~ ^[0-9]+$ ]] || die "invalid detected bus: $bus"
+    printf '%s\n' "$bus"
 }
 
 read_volume() {
