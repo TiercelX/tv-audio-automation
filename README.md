@@ -80,3 +80,35 @@ Manual control and service commands:
 ```
 
 The launch agent and logs are created under the current user's home directory. No host address, account name, or machine-specific absolute path is embedded in the repository.
+
+### Sound Blaster Z speaker output (Ubuntu)
+
+`ubuntu/sbz-speakers-volume-monitor.py` applies the G1 time checkpoints to the
+Sound Blaster Z analog stereo **speaker output** on the configured host. It only
+adjusts the output when the default PipeWire sink is
+`alsa_output.pci-0000_03_00.0.analog-stereo`; this PCI-specific node name may
+need to be changed for another machine. It is independent of the SA9023 service.
+
+The original G1 mapping produces an integer `g1` between 7 and 100. The speaker
+output uses `round(13 + 87 * ((g1 - 7) / 93) ** 1.5)` (rounding halves up),
+so the endpoints are 13% and 100%. The morning and evening checkpoints follow
+the G1 schedule, including the minute-by-minute evening fade from 21:30 to
+22:00. On startup the latest checkpoint is applied; subsequent manual changes
+last until the next checkpoint. If the target is not the default output or a
+write fails, the service retries. Volume percentages do not guarantee equal
+perceived loudness across different audio devices.
+
+To install this service after copying the repository to
+`~/.local/lib/tv-audio-automation`:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp ubuntu/systemd/sbz-speakers-volume-monitor.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now sbz-speakers-volume-monitor.service
+```
+
+Use `systemctl --user status sbz-speakers-volume-monitor.service` to inspect it,
+and `systemctl --user disable --now sbz-speakers-volume-monitor.service` to stop
+and disable it. Avoid running another scheduler for the same output at the same
+time. Logs are stored in `~/.local/state/creative-g1-schedule/monitor.log`.

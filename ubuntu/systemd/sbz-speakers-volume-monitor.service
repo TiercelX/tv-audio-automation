@@ -1,0 +1,11 @@
+[Unit]
+Description=Sound Blaster Z speaker output G1-based volume schedule
+After=pipewire.service wireplumber.service
+
+[Service]
+ExecStart=/usr/bin/python3 %h/.local/lib/tv-audio-automation/ubuntu/sbz-speakers-volume-monitor.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
