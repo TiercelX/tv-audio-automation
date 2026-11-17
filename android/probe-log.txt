@@ -1,0 +1,52 @@
+--------- beginning of main
+11-17 22:05:04.988 16191 16191 I A7VolumeProbe: model=SM-A7100 android=7.1.1
+11-17 22:05:04.988 16191 16191 I A7VolumeProbe: uid=10288
+11-17 22:05:04.991 16191 16191 I A7VolumeProbe: media=10/15
+11-17 22:05:04.993 16191 16191 I A7VolumeProbe: wired=false bluetooth=false
+11-17 22:05:04.998 16191 16191 I A7VolumeProbe: public static boolean android.media.AudioManager.semIsFineVolumeSupported()
+11-17 22:05:04.999 16191 16191 I A7VolumeProbe:   => true
+11-17 22:05:05.000 16191 16191 I A7VolumeProbe: public int android.media.AudioManager.getFineVolume(int,int)
+11-17 22:05:05.003 16191 16191 I A7VolumeProbe: public int android.media.AudioManager.semGetFineVolume(int)
+11-17 22:05:05.003 16191 16191 I A7VolumeProbe: public boolean android.media.AudioManager.semIsFineVolumeAvailable()
+11-17 22:05:05.005 16191 16191 I A7VolumeProbe:   => true
+11-17 22:05:05.005 16191 16191 I A7VolumeProbe: public void android.media.AudioManager.semSetFineVolume(int,int,int)
+11-17 22:05:05.006 16191 16191 I A7VolumeProbe: public void android.media.AudioManager.setFineVolume(int,int,int,int)
+--------- beginning of system
+11-17 22:05:48.622 16628 16628 I A7VolumeProbe: model=SM-A7100 android=7.1.1
+11-17 22:05:48.623 16628 16628 I A7VolumeProbe: uid=10288
+11-17 22:05:48.626 16628 16628 I A7VolumeProbe: media=10/15
+11-17 22:05:48.629 16628 16628 I A7VolumeProbe: wired=false bluetooth=false
+11-17 22:05:48.636 16628 16628 I A7VolumeProbe: public static boolean android.media.AudioManager.semIsFineVolumeSupported()
+11-17 22:05:48.637 16628 16628 I A7VolumeProbe:   => true
+11-17 22:05:48.638 16628 16628 I A7VolumeProbe: public int android.media.AudioManager.getFineVolume(int,int)
+11-17 22:05:48.642 16628 16628 I A7VolumeProbe: public int android.media.AudioManager.semGetFineVolume(int)
+11-17 22:05:48.643 16628 16628 I A7VolumeProbe: public boolean android.media.AudioManager.semIsFineVolumeAvailable()
+11-17 22:05:48.643 16628 16628 I A7VolumeProbe:   => true
+11-17 22:05:48.644 16628 16628 I A7VolumeProbe: public void android.media.AudioManager.semSetFineVolume(int,int,int)
+11-17 22:05:48.645 16628 16628 I A7VolumeProbe: public void android.media.AudioManager.setFineVolume(int,int,int,int)
+11-17 22:05:48.650 16628 16628 I A7VolumeProbe: semGetFineVolume(STREAM_MUSIC)=100
+11-17 22:05:48.666 16628 16628 I A7VolumeProbe: TEST BEGIN originalFine=100 originalCoarse=10
+11-17 22:05:49.111 16628 16628 I A7VolumeProbe: WRITE requested=99 fineReadback=99 coarseReadback=9
+11-17 22:05:49.532 16628 16628 I A7VolumeProbe: WRITE requested=98 fineReadback=98 coarseReadback=9
+11-17 22:05:49.960 16628 16628 I A7VolumeProbe: WRITE requested=99 fineReadback=99 coarseReadback=9
+11-17 22:05:50.382 16628 16628 I A7VolumeProbe: RESTORE requested=100 fineReadback=100 coarseReadback=10
+11-17 22:05:50.382 16628 16628 I A7VolumeProbe: TEST END
+11-17 22:06:59.583 17268 17268 I A7VolumeProbe: model=SM-A7100 android=7.1.1
+11-17 22:06:59.583 17268 17268 I A7VolumeProbe: uid=10288
+11-17 22:06:59.587 17268 17268 I A7VolumeProbe: media=6/15
+11-17 22:06:59.589 17268 17268 I A7VolumeProbe: wired=true bluetooth=false
+11-17 22:06:59.596 17268 17268 I A7VolumeProbe: public static boolean android.media.AudioManager.semIsFineVolumeSupported()
+11-17 22:06:59.596 17268 17268 I A7VolumeProbe:   => true
+11-17 22:06:59.598 17268 17268 I A7VolumeProbe: public int android.media.AudioManager.getFineVolume(int,int)
+11-17 22:06:59.602 17268 17268 I A7VolumeProbe: public int android.media.AudioManager.semGetFineVolume(int)
+11-17 22:06:59.602 17268 17268 I A7VolumeProbe: public boolean android.media.AudioManager.semIsFineVolumeAvailable()
+11-17 22:06:59.603 17268 17268 I A7VolumeProbe:   => true
+11-17 22:06:59.605 17268 17268 I A7VolumeProbe: public void android.media.AudioManager.semSetFineVolume(int,int,int)
+11-17 22:06:59.605 17268 17268 I A7VolumeProbe: public void android.media.AudioManager.setFineVolume(int,int,int,int)
+11-17 22:06:59.610 17268 17268 I A7VolumeProbe: semGetFineVolume(STREAM_MUSIC)=60
+11-17 22:06:59.624 17268 17268 I A7VolumeProbe: TEST BEGIN originalFine=60 originalCoarse=6
+11-17 22:07:00.047 17268 17268 I A7VolumeProbe: WRITE requested=59 fineReadback=59 coarseReadback=5
+11-17 22:07:00.459 17268 17268 I A7VolumeProbe: WRITE requested=58 fineReadback=58 coarseReadback=5
+11-17 22:07:00.893 17268 17268 I A7VolumeProbe: WRITE requested=59 fineReadback=59 coarseReadback=5
+11-17 22:07:01.308 17268 17268 I A7VolumeProbe: RESTORE requested=60 fineReadback=60 coarseReadback=6
+11-17 22:07:01.308 17268 17268 I A7VolumeProbe: TEST END

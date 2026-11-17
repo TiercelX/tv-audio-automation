@@ -1,6 +1,14 @@
 # TV and audio volume automation
 
-Small, host-local automation scripts for Philips TV controls on Ubuntu and Sound BlasterX G1 output volume on macOS. The project keeps the two host implementations separate; they use different control APIs and schedules.
+Host-local automation for Philips TV/audio controls on Ubuntu, Sound BlasterX G1 output volume on macOS, and a standalone Samsung Android media-volume scheduler. Each platform has its own implementation and control API.
+
+## Android / Samsung Galaxy A7 and Note9
+
+The [Android app](android/README.md) provides a Chinese card-based interface for scheduled media volume, designed for continuous music playback through a wired speaker. It includes the original TV 1–80 checkpoints mapped to phone output 10%–80%, editable mapping limits, custom time/weekday rules, execution logs, and Samsung fine-volume control (0–150). It does not play music itself or require root.
+
+Tested on Galaxy A7 SM-A7100 (Android 7.1.1) and Note9 SM-N9600 (Android 10), including short screen-off timed execution. Other devices and long-duration operation have not been verified. The master switch starts off; allow background operation before long-term use.
+
+**[Download the Android APK](https://github.com/TiercelX/tv-audio-automation/releases/tag/android-v0.2.0)** · [Chinese instructions and build details](android/README.md)
 
 ## Ubuntu
 

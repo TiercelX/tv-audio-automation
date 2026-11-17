@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="io.tiercel.a7volumeprobe.test">
+    <uses-sdk android:minSdkVersion="25" android:targetSdkVersion="25" />
+    <application android:label="A7 volume device tests" />
+    <instrumentation android:name="io.tiercel.a7volumeprobe.DeviceSmokeTest" android:targetPackage="io.tiercel.a7volumeprobe" />
+    <instrumentation android:name="io.tiercel.a7volumeprobe.UiSmokeTest" android:targetPackage="io.tiercel.a7volumeprobe" />
+</manifest>
